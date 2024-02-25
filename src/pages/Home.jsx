@@ -71,6 +71,7 @@ const Home = () => {
         className={`w-full h-screen bg-transparent ${isRotating ? 'cursor-grabbing' : 'cursor-grab'} `}
         camera={{ near: 0.1, far: 1000 }}
       >
+        {/* Suspense 用于解决加载组件时的白屏，可以显示其他的内容，而其他内容不允许使用 lazy加载 */}
         <Suspense fallback={<Loader />}>
           <directionalLight position={[1, 1, 1]} intensity={2} />
           {/* note: not directionLight  */}

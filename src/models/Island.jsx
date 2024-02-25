@@ -14,22 +14,21 @@ import isLandScene from '../assets/3d/island.glb';
 
 
 const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
-  const islandRef = useRef();
+  const islandRef = useRef(); // 对应到了Three的Group, 用于控制整个模型(islandRef.current, 即island的gameobject)
 
-  const { gl, viewport } = useThree();
-  const { nodes, materials } = useGLTF(isLandScene);
+  const { gl, viewport } = useThree();// 获取Three的渲染器，视口
+  const { nodes, materials } = useGLTF(isLandScene); // 获取模型的nodes和materials
 
-  const lastX = useRef(0);
-  const rotationSpeed = useRef(0);
-  const dampingFactor = 0.95;
+  const lastX = useRef(0); // 用于记录上一次的鼠标位置。这个值在组件的重渲染之间保持不变，而且这些值的变化不会触发组件的重新渲染
+  const rotationSpeed = useRef(0);  // 这个值在组件的重渲染之间保持不变，而且这些值的变化不会触发组件的重新渲染
+  const dampingFactor = 0.95; // 阻尼系数
 
   const handlePointerDown = (e) => {
     e.stopPropagation();
     e.preventDefault();
     setIsRotating(true);
 
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX; //只需要考虑X方向的
     lastX.current = clientX;
 
   }
@@ -75,9 +74,9 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
 
   useFrame(() => {
     if (!isRotating) {
-      rotationSpeed.current *= dampingFactor;
+      rotationSpeed.current *= dampingFactor; //每帧都会减小旋转速度
 
-      if (Math.abs(rotationSpeed.current) < 0.001) {
+      if (Math.abs(rotationSpeed.current) < 0.001) { //设定阈值后，停止旋转
         rotationSpeed.current = 0;
       }
 
@@ -91,7 +90,7 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
       //   Here's a step-by-step explanation of what this code does:
       // 1. rotation % (2 * Math.PI) calculates the remainder of the rotation value when divided by 2 * Math.PI.This essentially wraps the rotation value around once it reaches a full circle(360 degrees) so that it stays within the range of 0 to 2 * Math.PI.
       // 2.(rotation % (2 * Math.PI)) + 2 * Math.PI adds 2 * Math.PI to the result from step 1. This is done to ensure that the value remains positive and within the range of 0 to 2 * Math.PI even if it was negative after the modulo operation in step 1.
-      // 3. Finally, ((rotation%(2*Math.PI))+2*Math.PI)%(2*Math.PI) applies another modulo operation th the value obtained in step 2. This step guarantees that the value always stays with the range of 0 to 2*Math.PI, which is equivalent to a full circle in radians.
+      // 3. Finally, ((rotation%(2*Math.PI))+2*Math.PI)%(2*Math.PI) applies another modulo operation to the value obtained in step 2. This step guarantees that the value always stays with the range of 0 to 2*Math.PI, which is equivalent to a full circle in radians.
       const normalizeRotation = ((rotation % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
 
       //set the current stage based on the island's orientation
@@ -129,8 +128,8 @@ const Island = ({ isRotating, setIsRotating, setCurrentStage, ...props }) => {
       canvas.removeEventListener('pointermove', handlePointerMove);
       document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('keyup', handleKeyUp);
-    }
-  }, [gl, handlePointerDown, handlePointerUp, handlePointerMove]);
+    }  // 返回的这个函数将在组件卸载或依赖项改变之前执行
+  }, [gl, handlePointerDown, handlePointerUp, handlePointerMove]); //只有当这三个变量改变时，里面函数才会执行
 
   return (
     <a.group ref={islandRef} {...props}>
